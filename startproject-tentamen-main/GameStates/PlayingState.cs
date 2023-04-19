@@ -9,7 +9,7 @@ namespace BaseProject.GameStates
 {
     class PlayingState : GameObjectList
     {
-        string[] color = new string[3]; 
+        string[] color = new string[3];
         GameObjectList balls;
         private Ball player;
         private Cannon cannon;
@@ -19,6 +19,7 @@ namespace BaseProject.GameStates
         static int speed = 5;
         Walls walls = new Walls();
         static float bounce = 0.80f;
+        List<TargetBall> targetBalls = new List<TargetBall>();
 
         /// <summary>
         /// PlayState constructor which adds the different gameobjects and lists in the correct order of drawing.
@@ -37,6 +38,16 @@ namespace BaseProject.GameStates
             balls = new GameObjectList();
             Add(balls);
 
+            for (int i = 0; i < 5; i++)
+            {
+                for (int j = 0; j < color.Length; j++)
+                {
+                    TargetBall targetBall = new TargetBall(new Vector2(40 + (100 * i), 40 + (j * 25)), color[j]);
+                    targetBalls.Add(targetBall);
+                    Add(targetBall);
+                }
+            }
+
             // Add initialization logic here
         }
 
@@ -49,7 +60,7 @@ namespace BaseProject.GameStates
             base.Update(gameTime);
             counter++;
 
-            if(counter > 60) cooldown = false;
+            if (counter > 60) cooldown = false;
 
             // Add update logic here
 
@@ -72,6 +83,24 @@ namespace BaseProject.GameStates
                     ball.Position = new Vector2(ball.Position.X, ball.Position.Y - walls.Position.Y + ball.Height / 3);
                     ball.Velocity *= new Vector2(1, -bounce);
                 }
+
+                foreach (TargetBall targetBall in targetBalls)
+                {
+                    if (ball.CollidesWith(targetBall))
+                    {
+                        if (ball.assetname == targetBall.assetname)
+                        {
+                            targetBall.Visible = false;
+                            Vector2 N = Vector2.Subtract(ball.Position, targetBall.Position);
+                            N.Normalize();
+
+                            Vector2 bounceVector = (Vector2.Dot(ball.Velocity, N) / Vector2.Dot(N, N) * N);
+                            ball.Velocity += -1.4f * bounceVector * bounce;
+                        }
+                        else ball.Visible = false;
+                    }
+
+                }
             }
         }
 
@@ -79,7 +108,7 @@ namespace BaseProject.GameStates
         {
             base.HandleInput(inputHelper);
 
-            
+
             if (inputHelper.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Q)) ballColor++;
             Vector2 ballSpeed = Vector2.Subtract(inputHelper.MousePosition, cannon.Position);
             if (ballColor > 2) ballColor = 0;
