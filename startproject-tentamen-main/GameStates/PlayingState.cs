@@ -17,6 +17,8 @@ namespace BaseProject.GameStates
         bool cooldown = false;
         int counter = 100;
         static int speed = 5;
+        Walls walls = new Walls();
+        static float bounce = 0.80f;
 
         /// <summary>
         /// PlayState constructor which adds the different gameobjects and lists in the correct order of drawing.
@@ -29,6 +31,7 @@ namespace BaseProject.GameStates
             Add(new SpriteGameObject("background"));
             cannon = new Cannon(new Vector2(GameEnvironment.Screen.X / 2, GameEnvironment.Screen.Y - 20), "Cannon");
             Add(cannon);
+            Add(walls);
             //player = new Ball(new Vector2(GameEnvironment.Screen.X / 2, GameEnvironment.Screen.Y - 50), Vector2.Zero, Vector2.Zero, "circle");
             //Add(player);
             balls = new GameObjectList();
@@ -45,6 +48,27 @@ namespace BaseProject.GameStates
         {
             base.Update(gameTime);
             // Add update logic here
+
+            foreach (Ball ball in balls.Children)
+            {
+                //Collision detection between ball and walls with bounce
+                if (ball.CollidesWith(walls.WallLeft))
+                {
+                    ball.Position = new Vector2(ball.Position.X + walls.Position.X + ball.Width / 2, ball.Position.Y);
+                    ball.Velocity *= new Vector2(-bounce, 1);
+                }
+                if (ball.CollidesWith(walls.WallRight))
+                {
+                    ball.Position = new Vector2(ball.Position.X - walls.Position.X - ball.Width / 2, ball.Position.Y);
+                    ball.Velocity *= new Vector2(-bounce, 1);
+                }
+
+                if (ball.CollidesWith(walls.Ceiling))
+                {
+                    ball.Position = new Vector2(ball.Position.X, ball.Position.Y - walls.Position.Y + ball.Height / 3);
+                    ball.Velocity *= new Vector2(1, -bounce);
+                }
+            }
         }
 
         public override void HandleInput(InputHelper inputHelper)
