@@ -20,6 +20,7 @@ namespace BaseProject.GameStates
         Walls walls = new Walls();
         static float bounce = 0.80f;
         List<TargetBall> targetBalls = new List<TargetBall>();
+        List<Obstacles> obstacles = new List<Obstacles>();
 
         /// <summary>
         /// PlayState constructor which adds the different gameobjects and lists in the correct order of drawing.
@@ -46,6 +47,13 @@ namespace BaseProject.GameStates
                     targetBalls.Add(targetBall);
                     Add(targetBall);
                 }
+            }
+
+            for (int i = 0; i < 7; i++)
+            {
+                Obstacles obstacle = new Obstacles(new Vector2(100 + 100 * i, GameEnvironment.Screen.Y / 2), new Vector2(0, 0));
+                obstacles.Add(obstacle);
+                Add(obstacle);
             }
 
             // Add initialization logic here
@@ -102,6 +110,25 @@ namespace BaseProject.GameStates
                     }
 
                 }
+            }
+
+            //Collision between obstacles and walls
+            foreach(Obstacles obstacle1 in obstacles)
+            {
+                foreach(Obstacles obstacle2 in obstacles)
+                {
+                    if(obstacle1.CollidesWith(obstacle2) && obstacle1 != obstacle2)
+                    {
+                        Vector2 OffsetVector = Vector2.Subtract(obstacle1.Position, obstacle2.Position);
+                        OffsetVector.Normalize();
+                        obstacle1.Position += OffsetVector;
+                    }
+                }
+
+                if (obstacle1.CollidesWith(walls.WallLeft)) obstacle1.Position = new Vector2(obstacle1.Position.X + walls.Position.X + 1, obstacle1.Position.Y);
+                if (obstacle1.CollidesWith(walls.WallRight)) obstacle1.Position = new Vector2(obstacle1.Position.X + walls.Position.X - 1, obstacle1.Position.Y);
+                if (obstacle1.CollidesWith(walls.Ceiling)) obstacle1.Position = new Vector2(obstacle1.Position.X, obstacle1.Position.Y + 1);
+
             }
         }
 
