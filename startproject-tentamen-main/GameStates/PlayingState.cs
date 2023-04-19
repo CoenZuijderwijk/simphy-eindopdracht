@@ -47,6 +47,10 @@ namespace BaseProject.GameStates
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            counter++;
+
+            if(counter > 60) cooldown = false;
+
             // Add update logic here
 
             foreach (Ball ball in balls.Children)
@@ -84,6 +88,7 @@ namespace BaseProject.GameStates
             {
                 balls.Add(new Ball(cannon.Position, speed * ballSpeed, new Vector2(0, 50), color[ballColor]));
                 counter = 0;
+                cooldown = true;
             }
         }
     }
