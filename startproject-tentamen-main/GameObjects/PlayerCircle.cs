@@ -5,26 +5,31 @@ using System.Text;
 
 namespace SimPhy_Jun2021.GameObjects
 {
-    class PlayerCircle : RotatingSpriteGameObject
+    class Ball : RotatingSpriteGameObject
     {
+        public string assetname;
         protected float radius;
         private Vector2 acceleration = Vector2.Zero;
         private float invMass = 1.0f; //set indirectly by setting 'mass'
 
         /// <summary>Creates a physics body</summary>
-        public PlayerCircle(Vector2 position, string assetName) : base(assetName)
+        public Ball(Vector2 position,Vector2 velocity, Vector2 acceleration, string assetName) : base(assetName)
         {
             Vector2 size = new Vector2(Width, Height); //circle collider will fit either width or height
             radius = Math.Max(Width, Height) / 2.0f;
             Mass = (radius * radius); //mass approx.
             origin = Center;
             this.position = position;
+            this.assetname = assetName;
+            this.velocity = velocity;
+            this.acceleration = acceleration;
         }
 
         /// <summary>Updates this Body</summary>        
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            velocity += acceleration;
         }
 
         /// <summary>Returns closest point on this shape</summary>        
